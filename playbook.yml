@@ -1,0 +1,43 @@
+---
+- hosts: all
+  remote_user: root
+  vars_files:
+    - secrets.yml
+  tasks:
+  - name: Update the APT cache
+    apt: update_cache=yes
+
+  - name: Install required packages
+    apt: name={{item}}
+    with_items:
+    - htop
+    - nginx
+    - php7.0
+    - php7.0-fpm
+    - php7.0-pgsql
+    - php7.0-mbstring # Codiad
+    - php7.0-zip # Codiad
+    - letsencrypt
+
+  - synchronize:
+      src: files/
+      dest: /
+
+  - name: Disable default nginx entry
+    file: path=/etc/nginx/sites-enabled/default state=absent
+
+  - name: Link the config file
+    file:
+      src:  /etc/nginx/sites-available/koszek.com.conf
+      dest: /etc/nginx/sites-enabled/koszek.com.conf
+      state: link
+
+  - template:
+      src: templates/etc/nginx/.htpasswd
+      dest: /etc/nginx/.htpasswd
+      owner: www-data
+      group: root
+      mode: 0600
+
+  - name: restart nginx
+    service: name=nginx state=restarted enabled=yes
