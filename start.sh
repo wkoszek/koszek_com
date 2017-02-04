@@ -5,6 +5,11 @@ if [ "$1" = "-v" ]; then
 	ANSIBLE_OPTS=-vvvv # verbose
 fi
 
-ssh root@138.68.197.86 apt-get install -y python
-ansible ${ANSIBLE_OPTS} -i inventory all -m ping 
+IP=`cat IP`
+
+ssh root@${IP} apt-get install -y python letsencrypt
+cat files/root/renew.sh | ssh root@${IP} /bin/sh
+#ansible ${ANSIBLE_OPTS} -u root -i ${IP}, all -m ping
+#ansible-playbook -i ${IP}, playbook.yml
+ansible ${ANSIBLE_OPTS} -u root -i inventory all -m ping
 ansible-playbook -i inventory playbook.yml
