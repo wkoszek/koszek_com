@@ -23,6 +23,20 @@
       src: files/
       dest: /
 
+  - file:
+      path: "{{item}}"
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+    with_items:
+      - /etc
+      - /etc/nginx
+      - /etc/nginx/snippets
+      - /root
+      - /var/www/koszek.com
+      - /var/www/letsencrypt
+
   - name: Disable default nginx entry
     file: path=/etc/nginx/sites-enabled/default state=absent
 
