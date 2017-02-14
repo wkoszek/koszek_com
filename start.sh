@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export ANSIBLE_VAULT_PASSWORD_FILE=`pwd`/scripts/ansible-lastpass.sh
+
 ANSIBLE_OPTS=
 if [ "$1" = "-v" ]; then
 	ANSIBLE_OPTS=-vvvv # verbose
