@@ -3,3 +3,5 @@ s:
 ve:
 	@echo "editing vault"
 	ansible-vault edit ./secrets.yml
+ssh:
+	ssh root@`cat IP`
