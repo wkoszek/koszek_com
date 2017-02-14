@@ -8,8 +8,6 @@
 
 require 'minitest/autorun'
 require 'net/http'
-require 'pp'
-require 'json'
 
 class TestMeme < Minitest::Test
   def setup
