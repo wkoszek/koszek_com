@@ -12,6 +12,7 @@ require 'net/http'
 class TestMeme < Minitest::Test
   def setup
     @redir_resp_exp = [301, "https://www.koszek.com/"]
+    @supported_domains = [ "koszek.co", "koszek.tv", "koszek.us", "koszek.org", "koszek.net"]
     @debug = 0
   end
 
@@ -45,18 +46,20 @@ class TestMeme < Minitest::Test
   end
 
   def test_koszek_redirect_http
-    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.co")
-    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.tv")
-    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.us")
-    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.org")
-    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.net")
+    @supported_domains.each do |domain|
+      assert_equal @redir_resp_exp, http_code_for_url("http://#{domain}")
+      assert_equal @redir_resp_exp, http_code_for_url("http://www.#{domain}")
+    end
   end
 
   def test_koszek_redirect_https
-    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.co")
-    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.tv")
-    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.us")
-    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.org")
-    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.net")
+    @supported_domains.each do |domain|
+      assert_equal @redir_resp_exp, http_code_for_url("https://#{domain}")
+      assert_equal @redir_resp_exp, http_code_for_url("http://www.#{domain}")
+    end
+  end
+
+  def test_http2
+    #/usr/local/opt/curl/bin/curl --http2 -v https://www.koszek.us
   end
 end
