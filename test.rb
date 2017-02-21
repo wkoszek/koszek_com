@@ -11,7 +11,7 @@ require 'net/http'
 
 class TestMeme < Minitest::Test
   def setup
-    @redir_resp_exp = [301, "https://www.koszek.us/"]
+    @redir_resp_exp = [301, "https://www.koszek.com/"]
     @debug = 0
   end
 
