@@ -47,6 +47,7 @@ class TestMeme < Minitest::Test
   def test_koszek_redirect_http
     assert_equal @redir_resp_exp, http_code_for_url("http://koszek.co")
     assert_equal @redir_resp_exp, http_code_for_url("http://koszek.tv")
+    assert_equal @redir_resp_exp, http_code_for_url("http://koszek.us")
     assert_equal @redir_resp_exp, http_code_for_url("http://koszek.org")
     assert_equal @redir_resp_exp, http_code_for_url("http://koszek.net")
   end
@@ -54,6 +55,7 @@ class TestMeme < Minitest::Test
   def test_koszek_redirect_https
     assert_equal @redir_resp_exp, http_code_for_url("https://koszek.co")
     assert_equal @redir_resp_exp, http_code_for_url("https://koszek.tv")
+    assert_equal @redir_resp_exp, http_code_for_url("https://koszek.us")
     assert_equal @redir_resp_exp, http_code_for_url("https://koszek.org")
     assert_equal @redir_resp_exp, http_code_for_url("https://koszek.net")
   end
