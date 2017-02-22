@@ -100,8 +100,33 @@ class TestMeme < Minitest::Test
       assert_equal time_cur < info[:not_after], true
     end
   end
-
+ 
+  # HTTP/2 tests--------------------------------------------------
   def test_http2
-    #/usr/local/opt/curl/bin/curl --http2 -v https://www.koszek.us
+    req, resp = get_http_header("https://www.koszek.com")
+    pp req
+    pp resp
+  end
+
+  def get_http_headers(domain)
+    out = `/usr/local/opt/curl/bin/curl --stderr - --head --http2 -v #{domain}`
+    raw_req_lines  = out.split("\n").select {|tmp_line| tmp_line =~ /^> .*:.*/ }
+    raw_resp_lines = out.split("\n").select {|tmp_line| tmp_line =~ /^< .*:.*/ }
+    req_lines = http_headers_to_dict(raw_req_lines)
+    resp_lines = http_headers_to_dict(raw_resp_lines)
+    return req_lines, resp_lines
+  end
+
+  def http_headers_to_dict(raw_headers)
+    hdrs = {}
+    raw_headers.map { |a|
+      hdrname, hdrval = a.split(":")
+      hdrname.gsub!(/^> /, '')
+      hdrname.gsub!(/^< /, '')
+      [ hdrname.strip, hdrval.strip ]
+    }.each { |hdrname, hdrval|
+      hdrs[hdrname] = hdrval
+    }
+    return hdrs
   end
 end
