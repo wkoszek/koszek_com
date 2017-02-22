@@ -14,6 +14,11 @@ require 'json'
 require 'socket'
 require 'openssl'
 
+# TODO: add a simple 80 connect (to see if nginx is listening)
+# TODO: add a simple 443 connect
+# TODO: add a gzip test to make sure compression is enabled
+# TODO: add a test to see if keep-alive is set
+
 class TestMeme < Minitest::Test
   def setup
     @domain_main = "koszek.com";
