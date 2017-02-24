@@ -13,15 +13,18 @@ require 'pp'
 require 'json'
 require 'socket'
 require 'openssl'
+require 'resolv'
 
 # TODO: add a simple 80 connect (to see if nginx is listening)
 # TODO: add a simple 443 connect
 # TODO: add a gzip test to make sure compression is enabled
 # TODO: add a test to see if keep-alive is set
+# TODO: add a test for DNS records: SPF, DKIM etc.
 
 class TestMeme < Minitest::Test
   def setup
     @domain_main = "koszek.com";
+    @dns_servers = [ "ns41.domaincontrol.com", "ns42.domaincontrol.com" ]
     @redir_resp_exp = [301, "https://www.#{@domain_main}/"]
     @supported_domains = [ "koszek.co", "koszek.tv", "koszek.us", "koszek.org", "koszek.net"]
     @debug = 0
@@ -105,10 +108,20 @@ class TestMeme < Minitest::Test
       assert_equal time_cur < info[:not_after], true
     end
   end
+
+  # DNS
+  def test_dns_ip
+    dns = Resolv::DNS.open
+    records = dns.getresources(@domain_main, Resolv::DNS::Resource::IN::NS)
+    assert_operator records, :!=, nil
+    cur_dns_servers = records.map {|record| record.name.to_s }.sort
+    assert_equal @dns_servers, cur_dns_servers
+  end
  
   # HTTP/2 tests--------------------------------------------------
   def test_http2
-    req, resp = get_http_header("https://www.koszek.com")
+    return
+    req, resp = get_http_headers("https://www.koszek.com")
     pp req
     pp resp
   end
