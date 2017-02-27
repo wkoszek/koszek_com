@@ -18,15 +18,16 @@ require 'resolv'
 # TODO: add a simple 80 connect (to see if nginx is listening)
 # TODO: add a simple 443 connect
 # TODO: add a gzip test to make sure compression is enabled
-# TODO: add a test to see if keep-alive is set
 # TODO: add a test for DNS records: SPF, DKIM etc.
+# TODO: add a test for caching -- add 1 non-caching asset
 
 class TestMeme < Minitest::Test
   def setup
     @domain_main = "koszek.com";
-    @dns_servers = [ "ns41.domaincontrol.com", "ns42.domaincontrol.com" ]
-    @redir_resp_exp = [301, "https://www.#{@domain_main}/"]
+    @main_url_str = "https://www.#{@domain_main}/"
+    @redir_resp_exp = [301, @main_url_str ];
     @supported_domains = [ "koszek.co", "koszek.tv", "koszek.us", "koszek.org", "koszek.net"]
+    @dns_servers = [ "ns41.domaincontrol.com", "ns42.domaincontrol.com" ]
     @debug = 0
   end
 
@@ -45,14 +46,18 @@ class TestMeme < Minitest::Test
       response.value
     end
   end
-
-  def http_code_for_url(url_str)
+  
+  def http_get_response(url_str)
     uri = URI(url_str)
     use_ssl = (url_str =~ /^https/)
     response = Net::HTTP.start(uri.host, uri.port, :use_ssl => use_ssl) do |http|
       req = Net::HTTP::Get.new uri
       http.request(req) # Net::HTTPResponse object
     end
+  end
+
+  def http_code_for_url(url_str)
+    response = http_get_response(url_str)
 
     http_response_debug(response)
 
@@ -118,7 +123,35 @@ class TestMeme < Minitest::Test
     assert_equal @dns_servers, cur_dns_servers
   end
  
-  # HTTP/2 tests--------------------------------------------------
+  def http_resp_to_headers(resp)
+    hdrs = {}
+    resp.each_header {|k,v| hdrs[k] = v }
+    return hdrs
+  end
+
+  # Keep-alive
+  def test_keepalive
+    resp = http_get_response(@main_url_str + "/img/favicon.ico")
+    hdrs = http_resp_to_headers(resp)
+    assert_includes hdrs, "connection", "expected to have connection"
+    assert_operator hdrs['connection'], :==, 'keep-alive'
+  end
+
+  # Caching
+  def test_caching
+    resp = http_get_response(@main_url_str + "/img/favicon.ico")
+    hdrs = http_resp_to_headers(resp)
+    pp hdrs
+    # ETag: "58b29b5e-5823"
+    # Expires: Thu, 01 Jan 1970 00:00:01 GMT
+    # Cache-Control: no-cache
+    assert_includes hdrs, "etag", "expected ETag set"
+    assert_includes hdrs, "expires", "expected Expires set"
+    assert_includes hdrs, "cache-control", "expected Cache-Control"
+    assert_operator hdrs['cache-control'], :!=, 'no-cache' 
+  end
+
+  # HTTP/2 tests
   def test_http2
     return
     req, resp = get_http_headers("https://www.koszek.com")
