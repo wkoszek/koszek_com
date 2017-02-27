@@ -28,6 +28,7 @@ class TestMeme < Minitest::Test
     @redir_resp_exp = [301, @main_url_str ];
     @supported_domains = [ "koszek.co", "koszek.tv", "koszek.us", "koszek.org", "koszek.net"]
     @dns_servers = [ "ns41.domaincontrol.com", "ns42.domaincontrol.com" ]
+    @mxes = [ [10, "mx.zoho.com"], [20, "mx2.zoho.com"]]
     @debug = 0
   end
 
@@ -115,12 +116,27 @@ class TestMeme < Minitest::Test
   end
 
   # DNS
-  def test_dns_ip
+  def test_dns_ns
     dns = Resolv::DNS.open
     records = dns.getresources(@domain_main, Resolv::DNS::Resource::IN::NS)
     assert_operator records, :!=, nil
     cur_dns_servers = records.map {|record| record.name.to_s }.sort
     assert_equal @dns_servers, cur_dns_servers
+  end
+
+  def test_dns_ns
+    dns = Resolv::DNS.open
+    records = dns.getresources(@domain_main, Resolv::DNS::Resource::IN::NS)
+    assert_operator records, :!=, nil
+    cur_dns_servers = records.map {|record| record.name.to_s }.sort
+    assert_equal @dns_servers.sort(), cur_dns_servers.sort()
+  end
+
+  def test_dns_mx
+    dns = Resolv::DNS.open
+    records = dns.getresources(@domain_main, Resolv::DNS::Resource::IN::MX)
+    cur_mxes = records.map {|record| [ record.preference, record.exchange.to_s ] }
+    assert_equal @mxes.sort(), cur_mxes.sort()
   end
  
   def http_resp_to_headers(resp)
