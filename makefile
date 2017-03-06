@@ -1,3 +1,5 @@
+export ANSIBLE_VAULT_PASSWORD_FILE=$(shell command -v lastpass-ansible)
+
 s:
 	./start.sh
 ve:
