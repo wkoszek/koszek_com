@@ -1,2 +1,0 @@
-# Sample inventory file from:
-vm1 ansible_ssh_host=138.197.235.250 ansible_ssh_port=22 ansible_ssh_user=root
