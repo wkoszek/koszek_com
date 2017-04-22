@@ -9,5 +9,8 @@ ssh:
 	ssh root@`cat IP`
 sync:
 	rsync -va --delete --exclude '*\.git' ../me/build/ root@`cat IP`:/var/www/koszek.com/
+revsync:
+	mkdir -p files_rev/
+	rsync -va --exclude '*\.git' root@`cat IP`:/etc files_rev/
 clean:
 	rm -rf playbook.retry
